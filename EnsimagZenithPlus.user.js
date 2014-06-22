@@ -31,16 +31,16 @@ var ZP = {
     consultNote : {
 
         // attribut
-        tableDOM : {},
-        table : {},
+        moyenne : 0.0,
 
 
         // methodes
         run : function() {
-            this.parseTable();
+            this.calculMoyenne();
+            this.addInformationPanel();
         },
 
-        parseTable : function() {
+        calculMoyenne : function() {
             var sumNote = 0;
             var sumCoef = 0;
             $("tbody tr").each( function(){
@@ -52,8 +52,14 @@ var ZP = {
                 sumNote += coef * note;
                 sumCoef += coef;
             });
-            alert(sumNote/sumCoef);
+            this.moyenne = sumNote/sumCoef;
         },
+
+        addInformationPanel : function()
+        {
+            alert(this.moyenne);
+            $(".cadre-gris").prepend("<strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong>");
+        }
         
 
     },
