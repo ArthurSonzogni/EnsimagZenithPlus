@@ -13,7 +13,11 @@
  * Contributeur :
  */
 
+( function($){
+
 var ZP = {
+
+    $:jQuery,
 
     main : function() {
         if (document.URL.indexOf("ConsultNotes") != -1)
@@ -39,16 +43,8 @@ var ZP = {
         },
 
         parseTable : function() {
-            this.table=document.getElementsByTagName("table");
-            var tr = this.table[0].getElementsByTagName("tr");
-            var nbNotes = tr.length;
-            var SumNotes = 0;
-            var SumCoef = 0;
-            for( var i = 0; i<nbNotes ; i++)
-            {
-                alert("i="+i);
-            }
-        }
+            
+        },
         
 
     },
@@ -62,3 +58,7 @@ var ZP = {
 };
 
 ZP.main();
+
+alert($);
+
+})(jQuery);
