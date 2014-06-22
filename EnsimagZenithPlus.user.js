@@ -39,7 +39,6 @@ var ZP = {
             this.cleanInterface();
             this.updateView();
             this.checkNewElement();
-            this.addLineColor();
             //this.cascadeApparition();
             this.autoriserModifications();
         },
@@ -47,6 +46,7 @@ var ZP = {
         updateView : function() {
             this.calculMoyenne();
             this.addInformationPanel();
+            this.addLineColor();
         },
 
         calculMoyenne : function() {
