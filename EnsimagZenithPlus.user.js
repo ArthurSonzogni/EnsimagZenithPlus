@@ -17,8 +17,6 @@
 
 var ZP = {
 
-    $:jQuery,
-
     main : function() {
         if (document.URL.indexOf("ConsultNotes") != -1)
         {
@@ -43,7 +41,18 @@ var ZP = {
         },
 
         parseTable : function() {
-            
+            var sumNote = 0;
+            var sumCoef = 0;
+            $("tbody tr").each( function(){
+
+                var tds = $(this).children("td");
+                var coef = parseFloat(tds.eq(1).text());
+                var note = parseFloat(tds.eq(3).text());
+
+                sumNote += coef * note;
+                sumCoef += coef;
+            });
+            alert(sumNote/sumCoef);
         },
         
 
@@ -58,7 +67,5 @@ var ZP = {
 };
 
 ZP.main();
-
-alert($);
 
 })(jQuery);
