@@ -36,6 +36,7 @@ var ZP = {
 
         // methodes
         run : function() {
+            this.addLineColor();
             this.calculMoyenne();
             this.addInformationPanel();
         },
@@ -57,9 +58,24 @@ var ZP = {
 
         addInformationPanel : function()
         {
-            alert(this.moyenne);
-            $(".cadre-gris").prepend("<strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong>");
-        }
+            $("table").append("<h2><strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong></h2>");
+        },
+
+        addLineColor : function()
+        {
+            $("tbody tr").each( function(){
+                var tds = $(this).children("td");
+                var note = parseFloat(tds.eq(3).text());
+                if (note<8)         $(this).css("background-color","#FF3333");
+                else if (note<10)   $(this).css("background-color","#FFAAAA");
+                else if (note<12)   $(this).css("background-color","#FFB981");
+                else if (note<14)   $(this).css("background-color","#CCFFA9");
+                else if (note<16)   $(this).css("background-color","#76FF76");
+                else                $(this).css("background-color","#009953");
+
+            });
+        },
+
         
 
     },
