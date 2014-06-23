@@ -64,7 +64,7 @@ var ZP = {
                 sumCoef += coef;
             });
             this.moyenne = sumNote/sumCoef;
-            this.ecartType = Math.sqrt(sumNote2-sumNote)/sumCoef;
+            this.ecartType = Math.sqrt(sumNote2/sumCoef-this.moyenne*this.moyenne);
         },
 
         addInformationPanel : function() {
