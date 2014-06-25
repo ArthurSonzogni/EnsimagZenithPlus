@@ -2,7 +2,7 @@
 // @name        EnsimagZenithPlus
 // @namespace   https://intranet.ensimag.fr/Zenith2/
 // @description Amélioration du Zenith de l'ensimag
-// @include     https://intranet.ensimag.fr/Zenith2/
+// @include     https://intranet.ensimag.fr/Zenith2/*
 // @include     https://intranet.ensimag.fr/Zenith2/ConsultNotes?uid=*
 // @version     1
 // @grant       none
@@ -18,14 +18,40 @@
 var ZP = {
 
     main : function() {
+        // fonction globale
+        this.global.run();
+
+        // fonctions de la page
         if (document.URL.indexOf("ConsultNotes") != -1)
         {
             this.consultNote.run();
+        }
+        else if (document.URL.indexOf("Passwords") != -1)
+        {
+
+        }
+        else if (document.URL.indexOf("Autre") != -1)
+        {
+
+        }
+        else if (document.URL.indexOf("ConsultNotes") != -1)
+        {
+ 
         }
         else
         {
             this.homePage.run();
         }
+    },
+
+    global : {
+        run : function() {
+            this.addOngletNote();
+        },
+
+        addOngletNote : function() {
+            $("#header_liens").append("<li id=\"OngletNote\" class=\"\"><a href=\"/Zenith2/ConsultNotes?uid=\">Notes</a></li>");
+        },
     },
 
     consultNote : {
@@ -37,16 +63,18 @@ var ZP = {
         // methodes
         run : function() {
             this.cleanInterface();
-            this.updateView();
             this.checkNewElement();
-            this.addLineColor();
+            this.updateView();
             //this.cascadeApparition();
             this.autoriserModifications();
+            this.addButtonNewLine();
+            this.setOngletActif();
         },
 
         updateView : function() {
             this.calculMoyenne();
             this.addInformationPanel();
+            this.addLineColor();
         },
 
         calculMoyenne : function() {
@@ -56,8 +84,8 @@ var ZP = {
             $("tbody tr").each( function(){
 
                 var tds = $(this).children("td");
-                var coef = parseFloat(tds.eq(1).text());
-                var note = parseFloat(tds.eq(3).text());
+                var coef = ZP.util.parseFloat(tds.eq(1).text());
+                var note = ZP.util.parseFloat(tds.eq(3).text());
 
                 sumNote2 += coef * note * note;
                 sumNote += coef * note;
@@ -73,15 +101,15 @@ var ZP = {
                 $(this).remove();
             });
             // ajout du nouveau
-            $("table").append("<h2 class='panelAdded'><strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong></h2>");
-            $("table").append("<h3 class='panelAdded'>(Ecart-type = "+this.ecartType.toFixed(2)+")</h3>");
+            $(".cadre-gris").append("<h2 class='panelAdded'><strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong></h2>");
+            $(".cadre-gris").append("<h3 class='panelAdded'>(Ecart-type = "+this.ecartType.toFixed(2)+")</h3>");
         },
 
 
         addLineColor : function() {
             $("tbody tr").each( function(){
                 var tds = $(this).children("td");
-                var note = parseFloat(tds.eq(3).text());
+                var note = ZP.util.parseFloat(tds.eq(3).text());
                 if      (note<8)    $(this).css("background-color","#FF3333");
                 else if (note<10)   $(this).css("background-color","#FFAAAA");
                 else if (note<12)   $(this).css("background-color","#FFB981");
@@ -120,7 +148,8 @@ var ZP = {
         
         autoriserModifications : function() {
             var that = this;
-            $("tbody td").click(function () {
+            $("tbody td").off("click").on("click",function () {
+
                 var OriginalContent = $(this).text();
 
                 $(this).addClass("cellEditing");
@@ -143,6 +172,16 @@ var ZP = {
                 });
             });
         },
+
+        addButtonNewLine : function() {
+            var that = this;
+            $("table.perso.display").append("<button id=\"boutonNouvelleLigne\">nouvelle note (prévision)</button>");
+            $("#boutonNouvelleLigne").click(function(){
+                $("tbody").append("<tr><td>(prévision) "+prompt("Matière ?")+"</td><td>"+prompt("coefficient ?")+"</td><td>1</td><td>"+prompt("Note ?")+"</td><td></td></tr>");
+                that.updateView();
+                that.autoriserModifications();
+            });
+        },
         
         cleanInterface : function() {
             //$("#main").children().eq(0).remove();
@@ -151,6 +190,10 @@ var ZP = {
                     //return this.nodeType === 3;
             //}).remove();
         },
+
+        setOngletActif : function() {
+            $("#OngletNote").addClass("actif");
+        },
         
 
     },
@@ -158,9 +201,21 @@ var ZP = {
     homePage : {
         
         run : function() {
+            $("#footer").append(
+                "<a href=\"http://widget.mibbit.com/?server=irc.yourserver.net&channel=%23yourRoom&settings=<large-id>\" target=\"mibFrame\">Large Text</a>"+
+                "<a href=\"http://widget.mibbit.com/?server=irc.yourserver.net&channel=%23yourRoom&settings=<small-id>\" target=\"mibFrame\">Large Text</a>"+
+                "<br><br>"+
+                "<iframe src=\"about:blank\" name=\"mibFrame\" height=\"80%\" width=\"100%\">"
+            );
 
         },
     },
+
+    util : {
+        parseFloat : function(num){
+            return parseFloat(num.replace(",","."));
+        }
+    }
 };
 
 ZP.main();
