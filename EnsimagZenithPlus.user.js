@@ -69,12 +69,15 @@ var ZP = {
             this.autoriserModifications();
             this.addButtonNewLine();
             this.setOngletActif();
+            this.addCss();
         },
 
         updateView : function() {
             this.calculMoyenne();
             this.addInformationPanel();
             this.addLineColor();
+            this.addLineButton();
+            this.addPopUpStyle();
         },
 
         calculMoyenne : function() {
@@ -120,6 +123,7 @@ var ZP = {
 
 
             $("table td").css({padding:"10px"});
+            $("table td").css({"padding-right":"10px"});
         },
 
         checkNewElement : function() {
@@ -148,27 +152,34 @@ var ZP = {
         
         autoriserModifications : function() {
             var that = this;
-            $("tbody td").off("click").on("click",function () {
+            $("tbody td").each(function(){
+                // on selectionne les bonnes cases
+                var i = $(this).index();
+                switch(i){case 0:case 1:case 3:break;default:return;}
 
-                var OriginalContent = $(this).text();
+                $(this).off("click").on("click",function () {
 
-                $(this).addClass("cellEditing");
-                $(this).html("<input type='text' value='" + OriginalContent + "' />");
-                $(this).children().first().focus();
+                    // sauvegarde du contenu
+                    var OriginalContent = $(this).text();
 
-                $(this).children().first().keypress(function (e) {
-                    if (e.which == 13) {
-                        var newContent = $(this).val();
-                        $(this).parent().text(newContent);
+                    $(this).addClass("cellEditing");
+                    $(this).html("<input type='text' value='" + OriginalContent + "' />");
+                    $(this).children().first().focus();
+
+                    $(this).children().first().keypress(function (e) {
+                        if (e.which == 13) {
+                            var newContent = $(this).val();
+                            $(this).parent().text(newContent);
+                            $(this).parent().removeClass("cellEditing");
+                            that.updateView();
+                        }
+                    });
+
+                    $(this).children().first().blur(function(){
+                        $(this).parent().text(OriginalContent);
                         $(this).parent().removeClass("cellEditing");
                         that.updateView();
-                    }
-                });
-
-                $(this).children().first().blur(function(){
-                    $(this).parent().text(OriginalContent);
-                    $(this).parent().removeClass("cellEditing");
-                    that.updateView();
+                    });
                 });
             });
         },
@@ -177,7 +188,7 @@ var ZP = {
             var that = this;
             $("table.perso.display").append("<button id=\"boutonNouvelleLigne\">nouvelle note (prévision)</button>");
             $("#boutonNouvelleLigne").click(function(){
-                $("tbody").append("<tr><td>(prévision) "+prompt("Matière ?")+"</td><td>"+prompt("coefficient ?")+"</td><td>1</td><td>"+prompt("Note ?")+"</td><td></td></tr>");
+                $("tbody").append("<tr class=\"prevision\"><td><b>(prévision)</b> "+prompt("Matière ?")+"</td><td>"+prompt("coefficient ?")+"</td><td>1</td><td>"+prompt("Note ?")+"</td><td></td></tr>");
                 that.updateView();
                 that.autoriserModifications();
             });
@@ -194,19 +205,47 @@ var ZP = {
         setOngletActif : function() {
             $("#OngletNote").addClass("actif");
         },
+
+        addLineButton : function() {
+
+            $("tbody tr").each(function(){
+                var cell = $(this).children("td").eq(4);
+                
+                cell.html("Menu");
+                cell.addClass("buttonMenu");
+
+
+
+                cell.off("click").on("click",function(){
+                });
+            });
+        },
+
+        addPopUpStyle : function() {
+        },
         
+        addCss : function() {
+            $("head").append(""+
+                "<style>"+
+                ".buttonMenu"+
+                "{"+
+                "    background-color : #EEE;"+
+                "    box-shadow : inset 0 -2px 2px rgba(0,0,0,0.4)"+
+                "}"+
+                ".buttonMenu:hover"+
+                "{"+
+                "    background-color : #DDD;"+
+                "    box-shadow : inset 0 2px 2px rgba(0,0,0,0.4)"+
+                "}"+
+                "</style>"
+            );
+        },
 
     },
 
     homePage : {
         
         run : function() {
-            $("#footer").append(
-                "<a href=\"http://widget.mibbit.com/?server=irc.yourserver.net&channel=%23yourRoom&settings=<large-id>\" target=\"mibFrame\">Large Text</a>"+
-                "<a href=\"http://widget.mibbit.com/?server=irc.yourserver.net&channel=%23yourRoom&settings=<small-id>\" target=\"mibFrame\">Large Text</a>"+
-                "<br><br>"+
-                "<iframe src=\"about:blank\" name=\"mibFrame\" height=\"80%\" width=\"100%\">"
-            );
 
         },
     },
