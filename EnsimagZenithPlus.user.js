@@ -77,7 +77,6 @@ var ZP = {
             this.addInformationPanel();
             this.addLineColor();
             this.addLineButton();
-            this.addPopUpStyle();
         },
 
         calculMoyenne : function() {
@@ -87,6 +86,7 @@ var ZP = {
             $("tbody tr").each( function(){
 
                 var tds = $(this).children("td");
+                if (tds.hasClass("noteDisable")) return;
                 var coef = ZP.util.parseFloat(tds.eq(1).text());
                 var note = ZP.util.parseFloat(tds.eq(3).text());
 
@@ -100,17 +100,20 @@ var ZP = {
 
         addInformationPanel : function() {
             // suppression de l'ancien panneau
-            $(".panelAdded").hide('slow',function(){
+            $(".panelAdded").hide(1000,function(){
                 $(this).remove();
             });
             // ajout du nouveau
-            $(".cadre-gris").append("<h2 class='panelAdded'><strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong></h2>");
-            $(".cadre-gris").append("<h3 class='panelAdded'>(Ecart-type = "+this.ecartType.toFixed(2)+")</h3>");
+            $(".cadre-gris").append("<div class='panelAdded'>"+
+                    "<h2><strong>Moyenne générale = "+this.moyenne.toFixed(2)+"</strong></h2>"+
+                    "<h3>(Ecart-type = "+this.ecartType.toFixed(2)+")</h3>"+
+                    "</div>");
         },
 
 
         addLineColor : function() {
             $("tbody tr").each( function(){
+                if ($(this).hasClass("noteDisable")) return;
                 var tds = $(this).children("td");
                 var note = ZP.util.parseFloat(tds.eq(3).text());
                 if      (note<8)    $(this).css("background-color","#FF3333");
@@ -162,6 +165,7 @@ var ZP = {
                     // sauvegarde du contenu
                     var OriginalContent = $(this).text();
 
+                    if ($(this).hasClass("cellEditing")) return;
                     $(this).addClass("cellEditing");
                     $(this).html("<input type='text' value='" + OriginalContent + "' />");
                     $(this).children().first().focus();
@@ -206,36 +210,115 @@ var ZP = {
             $("#OngletNote").addClass("actif");
         },
 
-        addLineButton : function() {
 
+        addLineButton : function() {
+            var that = this;
             $("tbody tr").each(function(){
-                var cell = $(this).children("td").eq(4);
+                var line = $(this);
+                var cell = line.children("td").eq(4);
                 
-                cell.html("Menu");
+                cell.html("Menu <div class='menuList'><ul>"+
+                    "<li class='menuListRemove'>Supprimer</li>"+
+                    "<li class='menuListDisable'>Desactiver</li>"+
+                    "<li class='menuListEnable'>Activer</li>"+
+                    "</ul></div>");
                 cell.addClass("buttonMenu");
 
 
-
-                cell.off("click").on("click",function(){
+                cell.find(".menuListRemove").off("click").on("click",function(){
+                    line.animate({opacity:"0","font-size":"0px","padding":"0px","margin":"0px"},1000,function(){
+                        line.remove();
+                        that.updateView();
+                    });
                 });
+                cell.find(".menuListDisable").off("click").on("click",function(){
+                    line.find("td:not(:last-child)").addClass("noteDisable");
+                    that.updateView();
+                });
+                cell.find(".menuListEnable").off("click").on("click",function(){
+                    line.removeClass("noteDisable");
+                    that.updateView();
+                });
+
             });
         },
 
-        addPopUpStyle : function() {
+        addPopUp : function(cell,line) {
+            $("table").append(
+                $('<div class="menuPopUp"></div>')
+                .append("bonjour")
+                .offset(line.offset())
+            );
         },
         
+
         addCss : function() {
             $("head").append(""+
                 "<style>"+
+                ".noteDisable"+
+                "{"+
+                "    background-color : #999;"+
+                "}"+
                 ".buttonMenu"+
                 "{"+
+                "    text-align : center;"+
                 "    background-color : #EEE;"+
-                "    box-shadow : inset 0 -2px 2px rgba(0,0,0,0.4)"+
+                "    width : 100px;"+
+                "    box-shadow : inset 0 -1px 1px rgba(0,0,0,0.4);"+
+                "    padding : 0px ;"+
+                "    margin : 0px ;"+
                 "}"+
                 ".buttonMenu:hover"+
                 "{"+
-                "    background-color : #DDD;"+
-                "    box-shadow : inset 0 2px 2px rgba(0,0,0,0.4)"+
+                "    background-color : #FFF;"+
+                "    box-shadow : inset 0 0px 0px rgba(0,0,0,0.4);"+
+                "}"+
+                ".menuList"+
+                "{"+
+                "    position : absolute;"+
+                "    width : 100px;"+
+                "    background-color : transparent;"+
+                "    display : none;"+
+                "    padding : 0px ;"+
+                "    margin : 0px ;"+
+                "}"+
+                ".menuList ul"+
+                "{"+
+                "    list-style : none;"+
+                "    position : relative;"+
+                "    width : 100px;"+
+                "    left : -10px;"+
+                "    top : +5px;"+
+                "    padding-left : 10px ;"+
+                "    padding-right : 10px ;"+
+                "    padding-top : 5px ;"+
+                "    padding-bottom : 5px ;"+
+                "    margin : 0px ;"+
+                "    background-color : #FFF;"+
+                "    box-shadow : 0 10px 10px rgba(0,0,0,0.4);"+
+                "}"+
+                ".menuList li"+
+                "{"+
+                "    background-color : #EEE;"+
+                "    padding : 10px ;"+
+                "}"+
+                ".menuList ul li:hover"+
+                "{"+
+                "    background-color : #BBB;"+
+                "    box-shadow : inset 0 2px 2px rgba(0,0,0,0.4);"+
+                "}"+
+                ".buttonMenu:hover .menuList"+
+                "{"+
+                "    display : block;"+
+                "}"+
+                ".cadre-gris"+
+                "{"+
+                "    border:0px;"+
+                "    padding-bottom:100px;"+
+                "}"+
+                "#footer"+
+                "{"+
+                "    display:none;"+
                 "}"+
                 "</style>"
             );
