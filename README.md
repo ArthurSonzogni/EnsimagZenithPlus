@@ -11,9 +11,9 @@ Fonctionnalités:
 * Tableau de note et de coefficient éditables
 * Détection de nouvelles note (mémoire via HTML5 localstorage si présent)
 * Amélioration du style de tableau
+* Possibilité d'ajout de notes hypothétique (pour prévoir sa moyenne) et sauvegarde automatique
 
 Fonctionnalités ( bientôt implémentés):
 ======================================
 
-* Possibilité d'ajout de notes hypothétique (pour prévoir sa moyenne)
 * Un petite panneau d'explication (supprimable avec une petite croix)

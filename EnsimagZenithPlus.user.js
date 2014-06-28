@@ -3,7 +3,7 @@
 // @namespace   https://intranet.ensimag.fr/Zenith2/
 // @description Amélioration du Zenith de l'ensimag
 // @include     https://intranet.ensimag.fr/Zenith2/*
-// @include     https://intranet.ensimag.fr/Zenith2/ConsultNotes?uid=*
+// @include     http://intranet.ensimag.fr/Zenith2/*
 // @version     1
 // @grant       none
 // ==/UserScript==
@@ -62,6 +62,7 @@ var ZP = {
 
         // methodes
         run : function() {
+            this.retrievePrevision();
             this.cleanInterface();
             this.checkNewElement();
             this.updateView();
@@ -77,6 +78,8 @@ var ZP = {
             this.addInformationPanel();
             this.addLineColor();
             this.addLineButton();
+            this.autoriserModifications();
+            this.savePrevision();
         },
 
         calculMoyenne : function() {
@@ -137,6 +140,7 @@ var ZP = {
                     var tds = $(this).children("td");
                     var matiere = tds.eq(0).text();
                     var note = tds.eq(3).text();
+                    if ($(this).hasClass("prevision")) return;
                     if (localStorage.getItem(matiere) !== note) {
                         tds.eq(0).append('<span style="color:#990000">  ( Nouveau ) </span> ');
                         $(this).css("font-weight","Bold");
@@ -191,11 +195,15 @@ var ZP = {
         addButtonNewLine : function() {
             var that = this;
             $("table.perso.display").append("<button id=\"boutonNouvelleLigne\">nouvelle note (prévision)</button>");
-            $("#boutonNouvelleLigne").click(function(){
-                $("tbody").append("<tr class=\"prevision\"><td><b>(prévision)</b> "+prompt("Matière ?")+"</td><td>"+prompt("coefficient ?")+"</td><td>1</td><td>"+prompt("Note ?")+"</td><td></td></tr>");
+            $("#boutonNouvelleLigne").off("click").click(function(){
+                that.addPrevision(prompt("Matière ?"),prompt("Coefficient ?"),prompt("Notes ?"));
                 that.updateView();
                 that.autoriserModifications();
             });
+        },
+
+        addPrevision : function(matiere,coefficient,note) {
+            $("tbody").append("<tr class=\"prevision\"><td><b>(prévision)</b> "+matiere+"</td><td>"+coefficient+"</td><td>1</td><td>"+note+"</td><td></td></tr>");
         },
         
         cleanInterface : function() {
@@ -324,7 +332,40 @@ var ZP = {
             );
         },
 
+        savePrevision : function() {
+            if (typeof(Storage) != "undefined") {
+                var prevision = [];
+                $("tbody tr").each( function(){
+                    var tds = $(this).children("td");
+                    if ($(this).hasClass("prevision")){
+                        var matiere = tds.eq(0).text();
+                        var coef = tds.eq(1).text();
+                        var note = tds.eq(3).text();
+                        prevision.push({
+                            'matiere':matiere.replace("(prévision) ",""),
+                            'coef':coef,
+                            'note':note,
+                        });
+                    }
+                });
+                localStorage.setItem("prevision",JSON.stringify(prevision));
+            }
+        },
+
+        retrievePrevision : function() {
+            if (typeof(Storage) != "undefined") {
+                var prevision = localStorage.getItem("prevision");
+                if (prevision) {
+                    prevision = JSON.parse(prevision);
+                    for(var i = 0 ; i<prevision.length ; i++ ) {
+                        this.addPrevision(prevision[i].matiere,prevision[i].coef,prevision[i].note);
+                    }
+                }
+            }
+        },
+
     },
+    
 
     homePage : {
         
